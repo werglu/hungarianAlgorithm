@@ -6,14 +6,13 @@ namespace hungarianAlgorithm
 {
     public class Point
     {
-        public double x;
-        public double y;
+        public readonly double X;
+        public readonly double Y;
 
         public Point(double x, double y)
         {
-            this.x = x;
-            this.y = y;
+            X = x;
+            Y = y;
         }
-
     }
 }

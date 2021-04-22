@@ -3,51 +3,104 @@ using System.IO;
 
 namespace hungarianAlgorithm
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            int k = 0;
-            int n = 0; //liczba studni
-            Algorithm algorithm = new Algorithm(1,1);
+            var algorithm = new Algorithm(1,1);
 
-            Console.WriteLine("Podaj nazwę pliku z katalogu 'In'");
-            var inFile = Console.ReadLine();
-            if (!inFile.Contains(".txt"))
+            if (args.Length == 0)
+            {
+                Console.Error.WriteLine("Należy podać plik wejściowy");
+                Environment.Exit(1);
+            }
+
+            var inFile = args[0];
+            if (string.IsNullOrEmpty(inFile))
+            {
+                Console.Error.WriteLine("Pusta nazwa pliku");
+                Environment.Exit(1);
+            }
+            if (!inFile.EndsWith(".txt"))
             {
                 inFile += ".txt";
             }
 
-            using (var reader = new StreamReader(@"..//..//In//" + inFile))
+            try
             {
-                while (!reader.EndOfStream)
+                using (var reader = new StreamReader(inFile))
                 {
-                    var line = reader.ReadLine();
-                    var splittedLine = line.Split(' ');
-                    k = int.Parse(splittedLine[0]);
-                    n = int.Parse(splittedLine[1]);
-
-                    algorithm = new Algorithm(n, k);
-
-                    for (int i = 0; i < n; i++)
+                    int lineNumber = 1;
+                    while (!reader.EndOfStream)
                     {
-                        line = reader.ReadLine();
-                        splittedLine = line.Split(' ');
-                        algorithm.wells[i] = new Point(double.Parse(splittedLine[1]), double.Parse(splittedLine[2]));
+                        var line = reader.ReadLine();
+                        if (string.IsNullOrEmpty(line))
+                            throw new CorruptedInputFileException(lineNumber, "pusta linia");
+
+                        var splittedLine = line.Split(' ');
+                        if (splittedLine.Length != 2)
+                            throw new CorruptedInputFileException(lineNumber,
+                                "nie można odczytać ilości studni i domów");
+
+                        var k = int.Parse(splittedLine[0]);
+                        var n = int.Parse(splittedLine[1]); //liczba studni
+
+                        algorithm = new Algorithm(n, k);
+
+                        for (var i = 0; i < n; i++)
+                        {
+                            ++lineNumber;
+                            line = reader.ReadLine();
+                            if (string.IsNullOrEmpty(line))
+                                throw new CorruptedInputFileException(lineNumber, "pusta linia");
+
+                            splittedLine = line.Split(' ');
+                            if (splittedLine.Length != 3)
+                                throw new CorruptedInputFileException(lineNumber, "nieprawidłowa liczba kolumn");
+
+                            algorithm.Wells[i] =
+                                new Point(double.Parse(splittedLine[1]), double.Parse(splittedLine[2]));
+                        }
+
+                        for (var i = 0; i < k * n; i++)
+                        {
+                            ++lineNumber;
+                            line = reader.ReadLine();
+                            if (string.IsNullOrEmpty(line))
+                                throw new CorruptedInputFileException(lineNumber, "pusta linia");
+
+                            splittedLine = line.Split(' ');
+                            if (splittedLine.Length != 3)
+                                throw new CorruptedInputFileException(lineNumber, "nieprawidłowa liczba kolumn");
+
+                            algorithm.Houses[i] =
+                                new Point(double.Parse(splittedLine[1]), double.Parse(splittedLine[2]));
+                        }
                     }
 
-                    for (int i = 0; i < k * n; i++)
-                    {
-                        line = reader.ReadLine();
-                        splittedLine = line.Split(' ');
-                        algorithm.houses[i] = new Point(double.Parse(splittedLine[1]), double.Parse(splittedLine[2]));
-                    }
+                    algorithm.Solve();
                 }
-
-                algorithm.Solve();
             }
+            catch (FileNotFoundException)
+            {
+                Console.Error.WriteLine($"Nie znaleziono pliku {inFile}");
+                Environment.Exit(1);
+            }
+            catch (CorruptedInputFileException e)
+            {
+                Console.Error.WriteLine($"Uszkodzony plik wejściowy na linii {e.LineNumber}: {e.Message}");
+                Environment.Exit(1);
+            }
+        }
+        
+        private class CorruptedInputFileException : Exception
+        {
+            public readonly int LineNumber;
 
-
+            public CorruptedInputFileException(int lineNumber, string message) : base(message)
+            {
+                LineNumber = lineNumber;
+            }
         }
     }
 }

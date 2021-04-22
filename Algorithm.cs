@@ -9,24 +9,24 @@ namespace hungarianAlgorithm
 {
     public class Algorithm
     {
-        int n; //liczba studni
-        int k;
-        int kn; //liczba domów
-        public Point[] wells;
-        public Point[] houses;
-        public double[,] distances;
-        public int[,] markedZeros; //-1-wykreślone zero, 1-wybrane zero
-        int markedZerosCount = 0;
+        private readonly int _n; //liczba studni
+        private readonly int _k;
+        private readonly int _kn; //liczba domów
+        public readonly Point[] Wells;
+        public readonly Point[] Houses;
+        private readonly double[,] _distances;
+        private readonly int[,] _markedZeros; //-1-wykreślone zero, 1-wybrane zero
+        private int _markedZerosCount = 0;
 
         public Algorithm(int n, int k)
         {
-            this.n = n;
-            this.k = k;
-            kn = k * n;
-            wells = new Point[n];
-            houses = new Point[kn];
-            distances = new double[kn, kn];
-            markedZeros = new int[kn, kn];
+            _n = n;
+            _k = k;
+            _kn = k * n;
+            Wells = new Point[n];
+            Houses = new Point[_kn];
+            _distances = new double[_kn, _kn];
+            _markedZeros = new int[_kn, _kn];
         }
 
         public void Solve()
@@ -39,151 +39,145 @@ namespace hungarianAlgorithm
             DisplayMatrix();
         }
 
-        public void DisplayMatrix()
+        private void DisplayMatrix()
         {
-            for (int i = 0; i < kn; i++)
+            for (var i = 0; i < _kn; i++)
             {
-                for (int j=0; j<kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    Console.Write(distances[i, j].ToString() + ' ');
+                    Console.Write($"{_distances[i, j]} ");
                 }
 
                 Console.WriteLine();
             }
-
         }
-        public void MarkZeros()
-        {
-            int zerosCounter = 0; //liczba zer w danym wierszu/kolumnie
-            int zeroIndex = 0; //index znalezionego zera w wierszu/kolumnie
 
-            for (int i=0; i<kn; i++) //wiersze
+        private void MarkZeros()
+        {
+            var zerosCounter = 0; //liczba zer w danym wierszu/kolumnie
+            var zeroIndex = 0; //index znalezionego zera w wierszu/kolumnie
+
+            for (var i = 0; i < _kn; i++) //wiersze
             {
                 zerosCounter = 0;
                 zeroIndex = 0;
 
-                for (int j=0; j<kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    if (distances[i, j] == 0 && markedZeros[i, j] == 0)
-                    {
-                        zerosCounter++;
-                        zeroIndex = j;
-                    }
+                    if (_distances[i, j] != 0 || _markedZeros[i, j] != 0)
+                        continue;
+
+                    zerosCounter++;
+                    zeroIndex = j;
                 }
 
-                if (zerosCounter == 1)
-                {
-                    markedZeros[i, zeroIndex] = 1; //wybieramy zero
-                    markedZerosCount++;
+                if (zerosCounter != 1)
+                    continue;
 
-                    for (int j=0; j<kn; j++)
+                _markedZeros[i, zeroIndex] = 1; //wybieramy zero
+                _markedZerosCount++;
+
+                for (var j = 0; j < _kn; j++)
+                {
+                    if (_distances[j, zeroIndex] == 0 && _markedZeros[j, zeroIndex] == 0)
                     {
-                        if (distances[j, zeroIndex] == 0 && markedZeros[j, zeroIndex] == 0)
-                        {
-                            markedZeros[j, zeroIndex] = -1; //wykreślamy zera w danej kolumnie
-                        }
+                        _markedZeros[j, zeroIndex] = -1; //wykreślamy zera w danej kolumnie
                     }
                 }
             }
 
-            for (int i=0; i<kn; i++) //kolumny
+            for (var i = 0; i < _kn; i++) //kolumny
             {
                 zerosCounter = 0;
                 zeroIndex = 0;
 
-                for (int j = 0; j < kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    if (distances[j, i] == 0 && markedZeros[j, i] == 0)
-                    {
-                        zerosCounter++;
-                        zeroIndex = j;
-                    }
+                    if (_distances[j, i] != 0 || _markedZeros[j, i] != 0)
+                        continue;
+
+                    zerosCounter++;
+                    zeroIndex = j;
                 }
 
-                if (zerosCounter == 1)
-                {
-                    markedZeros[zeroIndex, i] = 1; //wybieramy zero
-                    markedZerosCount++;
+                if (zerosCounter != 1)
+                    continue;
 
-                    for (int j = 0; j < kn; j++)
+                _markedZeros[zeroIndex, i] = 1; //wybieramy zero
+                _markedZerosCount++;
+
+                for (var j = 0; j < _kn; j++)
+                {
+                    if (_distances[zeroIndex, j] == 0 && _markedZeros[zeroIndex, j] == 0)
                     {
-                        if (distances[zeroIndex, j] == 0 && markedZeros[zeroIndex, j] == 0)
-                        {
-                            markedZeros[zeroIndex, j] = -1; //wykreślamy zera w danym wierszu
-                        }
+                        _markedZeros[zeroIndex, j] = -1; //wykreślamy zera w danym wierszu
                     }
                 }
             }
         }
 
-        public void CreateDistancesMatrix()
+        private void CreateDistancesMatrix()
         {
-            int index = 0;
-
-            for (int i=0; i<kn; i++)
+            for (var i = 0; i < _kn; i++)
             {
-                index = 0;
+                var index = 0;
 
-                for (int j=0; j<n; j++)
+                for (var j = 0; j < _n; j++)
                 {
-                    for (int l=0; l<k; l++)
+                    for (var l = 0; l < _k; l++)
                     {
-                        distances[i, index] = GetDistance(houses[i], wells[j]);
+                        _distances[i, index] = GetDistance(Houses[i], Wells[j]);
                         index++;
                     }
                 }
             }
         }
 
-        public void ReduceRows()
+        private void ReduceRows()
         {
-            double minValue = Double.MaxValue;
-
-            for (int i=0; i<kn; i++)
+            for (var i = 0; i < _kn; i++)
             {
-                minValue = Double.MaxValue;
+                var minValue = double.MaxValue;
 
-                for (int j=0; j<kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    if (distances[i, j] < minValue)
+                    if (_distances[i, j] < minValue)
                     {
-                        minValue = distances[i, j];
+                        minValue = _distances[i, j];
                     }
                 }
 
-                for (int j=0; j<kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    distances[i, j] = Math.Round(distances[i, j] - minValue, 2);
+                    _distances[i, j] = Math.Round(_distances[i, j] - minValue, 2);
                 }
             }
         }
 
-        public void ReduceColumns()
+        private void ReduceColumns()
         {
-            double minValue = Double.MaxValue;
-
-            for (int i = 0; i < kn; i++)
+            for (var i = 0; i < _kn; i++)
             {
-                minValue = Double.MaxValue;
+                var minValue = double.MaxValue;
 
-                for (int j = 0; j < kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    if (distances[j, i] < minValue)
+                    if (_distances[j, i] < minValue)
                     {
-                        minValue = distances[j, i];
+                        minValue = _distances[j, i];
                     }
                 }
 
-                for (int j = 0; j < kn; j++)
+                for (var j = 0; j < _kn; j++)
                 {
-                    distances[j, i] = Math.Round(distances[j, i] - minValue, 2);
+                    _distances[j, i] = Math.Round(_distances[j, i] - minValue, 2);
                 }
             }
         }
 
-        public double GetDistance(Point p1, Point p2)
+        private static double GetDistance(Point p1, Point p2)
         {
-            return Math.Round(Math.Sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)), 2);
+            return Math.Round(Math.Sqrt((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y)), 2);
         }
     }
 }
