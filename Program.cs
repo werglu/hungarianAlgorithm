@@ -19,7 +19,7 @@ namespace hungarianAlgorithm
                 inFile += ".txt";
             }
 
-            using (var reader = new StreamReader(@"..\..\..\In\"+inFile))
+            using (var reader = new StreamReader(@"..//..//In//" + inFile))
             {
                 while (!reader.EndOfStream)
                 {
@@ -30,14 +30,14 @@ namespace hungarianAlgorithm
                     wells = new Point[n];
                     houses = new Point[n * k];
 
-                    for (int i=0; i<n; i++)
+                    for (int i = 0; i < n; i++)
                     {
                         line = reader.ReadLine();
                         splittedLine = line.Split(' ');
                         wells[i] = new Point(double.Parse(splittedLine[1]), double.Parse(splittedLine[2]));
                     }
 
-                    for (int i=0; i<k*n; i++)
+                    for (int i = 0; i < k * n; i++)
                     {
                         line = reader.ReadLine();
                         splittedLine = line.Split(' ');
