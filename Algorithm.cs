@@ -16,7 +16,9 @@ namespace hungarianAlgorithm
         public readonly Point[] Houses;
         private readonly double[,] _distances;
         private readonly int[,] _markedZeros; //-1-wykreślone zero, 1-wybrane zero
-        private int _markedZerosCount = 0;
+        private readonly System.Collections.BitArray _markedColumns;
+        private readonly System.Collections.BitArray _markedRows;
+        private int _markedZerosCount;
 
         public Algorithm(int n, int k)
         {
@@ -27,16 +29,27 @@ namespace hungarianAlgorithm
             Houses = new Point[_kn];
             _distances = new double[_kn, _kn];
             _markedZeros = new int[_kn, _kn];
+            _markedColumns = new System.Collections.BitArray(_kn);
+            _markedRows = new System.Collections.BitArray(_kn);
         }
 
-        public void Solve()
+        public IEnumerable<Assigment> Solve()
         {
             CreateDistancesMatrix();
             ReduceRows();
             ReduceColumns();
+            DisplayMatrix();
             MarkZeros();
+            while (_markedZerosCount != _kn)
+            {
+                MarkColumnsAndRows();
+                ReduceCost();
+                DisplayMatrix();
+                MarkZeros();
+            }
 
             DisplayMatrix();
+            return FindSolution();
         }
 
         private void DisplayMatrix()
@@ -54,8 +67,10 @@ namespace hungarianAlgorithm
 
         private void MarkZeros()
         {
-            var zerosCounter = 0; //liczba zer w danym wierszu/kolumnie
-            var zeroIndex = 0; //index znalezionego zera w wierszu/kolumnie
+            _markedZerosCount = 0;
+            ClearMarkedZeros();
+            int zerosCounter; //liczba zer w danym wierszu/kolumnie
+            int zeroIndex; //index znalezionego zera w wierszu/kolumnie
 
             for (var i = 0; i < _kn; i++) //wiersze
             {
@@ -173,6 +188,139 @@ namespace hungarianAlgorithm
                     _distances[j, i] = Math.Round(_distances[j, i] - minValue, 2);
                 }
             }
+        }
+
+        private void MarkColumnsAndRows()
+        {
+            _markedColumns.SetAll(false);
+            _markedRows.SetAll(false);
+            for (var row = 0; row < _kn; ++row)
+            {
+                var noAssignments = true;
+                for (var col = 0; col < _kn; ++col)
+                {
+                    if (_markedZeros[row, col] != 1)
+                        continue;
+
+                    noAssignments = false;
+                    break;
+                }
+
+                if (noAssignments)
+                {
+                    _markedRows[row] = true;
+                }
+            }
+
+            var newMarkedRows = true;
+            while (newMarkedRows)
+            {
+                newMarkedRows = false;
+                for (var col = 0; col < _kn; ++col)
+                {
+                    if (_markedColumns[col])
+                        continue;
+
+                    var hasZeros = false;
+                    for (var row = 0; row < _kn; ++row)
+                    {
+                        if (!_markedRows[row])
+                            continue;
+                        if (_distances[row, col] != 0)
+                            continue;
+
+                        hasZeros = true;
+                        break;
+                    }
+
+                    if (!hasZeros)
+                        continue;
+                    
+                    _markedColumns[col] = true;
+                    for (var row = 0; row < _kn; ++row)
+                    {
+                        if (_markedRows[row])
+                            continue;
+                        if (_markedZeros[row, col] != 1)
+                            continue;
+
+                        newMarkedRows = true;
+                        _markedRows[row] = true;
+                    }
+                }
+            }
+        }
+
+        private void ClearMarkedZeros()
+        {
+            // Array.Fill z jakiegoś powodu nie działa :/
+            for (var row = 0; row < _kn; ++row)
+            {
+                for (var col = 0; col < _kn; ++col)
+                {
+                    _markedZeros[row, col] = 0;
+                }
+            }
+        }
+
+        private double FindDelta()
+        {
+            var min = double.PositiveInfinity;
+            for (var row = 0; row < _kn; ++row)
+            {
+                for (var col = 0; col < _kn; ++col)
+                {
+                    if (!_markedRows[row] || _markedColumns[col])
+                        continue;
+
+                    if (_distances[row, col] < min)
+                    {
+                        min = _distances[row, col];
+                    }
+                }
+            }
+
+            return min;
+        }
+
+        private void ReduceCost()
+        {
+            var delta = FindDelta();
+            for (var row = 0; row < _kn; ++row)
+            {
+                for (var col = 0; col < _kn; ++col)
+                {
+                    if (_markedRows[row] && !_markedColumns[col])
+                    {
+                        _distances[row, col] -= delta;
+                    }
+
+                    if (!_markedRows[row] && _markedColumns[col])
+                    {
+                        _distances[row, col] += delta;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<Assigment> FindSolution()
+        {
+            var result = new Assigment[_kn];
+            var index = 0;
+            for (var row = 0; row < _kn; ++row)
+            {
+                for (var col = 0; col < _kn; ++col)
+                {
+                    if (_markedZeros[row, col] != 1)
+                        continue;
+
+                    result[index] = new Assigment(col / _k, row);
+                    ++index;
+                    break;
+                }
+            }
+
+            return result;
         }
 
         private static double GetDistance(Point p1, Point p2)

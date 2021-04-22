@@ -7,7 +7,7 @@ namespace hungarianAlgorithm
     {
         public static void Main(string[] args)
         {
-            var algorithm = new Algorithm(1,1);
+            var algorithm = new Algorithm(1, 1);
 
             if (args.Length == 0)
             {
@@ -21,6 +21,7 @@ namespace hungarianAlgorithm
                 Console.Error.WriteLine("Pusta nazwa pliku");
                 Environment.Exit(1);
             }
+
             if (!inFile.EndsWith(".txt"))
             {
                 inFile += ".txt";
@@ -30,7 +31,7 @@ namespace hungarianAlgorithm
             {
                 using (var reader = new StreamReader(inFile))
                 {
-                    int lineNumber = 1;
+                    var lineNumber = 1;
                     while (!reader.EndOfStream)
                     {
                         var line = reader.ReadLine();
@@ -78,7 +79,13 @@ namespace hungarianAlgorithm
                         }
                     }
 
-                    algorithm.Solve();
+                    var solution = algorithm.Solve();
+
+                    Console.WriteLine("ROZWIĄZANIE (dom -> studnia)");
+                    foreach (var assigment in solution)
+                    {
+                        Console.WriteLine($"{assigment.HouseId+1} -> {assigment.WellId+1}");
+                    }
                 }
             }
             catch (FileNotFoundException)
@@ -92,7 +99,7 @@ namespace hungarianAlgorithm
                 Environment.Exit(1);
             }
         }
-        
+
         private class CorruptedInputFileException : Exception
         {
             public readonly int LineNumber;
