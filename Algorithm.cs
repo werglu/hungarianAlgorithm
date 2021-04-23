@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,27 +70,58 @@ namespace hungarianAlgorithm
         {
             _markedZerosCount = 0;
             ClearMarkedZeros();
-            int zerosCounter; //liczba zer w danym wierszu/kolumnie
-            int zeroIndex; //index znalezionego zera w wierszu/kolumnie
 
-            for (var i = 0; i < _kn; i++) //wiersze
+            var marked = true;
+            while (marked)
             {
-                zerosCounter = 0;
-                zeroIndex = 0;
-
-                for (var j = 0; j < _kn; j++)
+                marked = false;
+                for (var col = 0; col < _kn; col++) //kolumny
                 {
-                    if (_distances[i, j] != 0 || _markedZeros[i, j] != 0)
+                    var zerosCounter = 0; //liczba zer w danym wierszu/kolumnie
+                    var zeroIndex = 0; //index znalezionego zera w wierszu/kolumnie
+
+                    for (var row = 0; row < _kn; row++)
+                    {
+                        if (_distances[row, col] != 0 || _markedZeros[row, col] != 0)
+                            continue;
+
+                        zerosCounter++;
+                        zeroIndex = row;
+                    }
+
+                    if (zerosCounter != 1)
                         continue;
 
-                    zerosCounter++;
-                    zeroIndex = j;
+                    marked = true;
+                    _markedZeros[zeroIndex, col] = 1; //wybieramy zero
+                    _markedZerosCount++;
+
+                    for (var j = 0; j < _kn; j++)
+                    {
+                        if (_distances[zeroIndex, j] == 0 && _markedZeros[zeroIndex, j] == 0)
+                        {
+                            _markedZeros[zeroIndex, j] = -1; //wykreślamy zera w danym wierszu
+                        }
+                    }
+                }
+            }
+
+            for (var row = 0; row < _kn; row++) //wiersze
+            {
+                var zeroIndex = -1;
+
+                for (var col = 0; col < _kn; col++)
+                {
+                    if (_distances[row, col] != 0 || _markedZeros[row, col] != 0)
+                        continue;
+
+                    zeroIndex = col;
                 }
 
-                if (zerosCounter != 1)
+                if (zeroIndex == -1)
                     continue;
 
-                _markedZeros[i, zeroIndex] = 1; //wybieramy zero
+                _markedZeros[row, zeroIndex] = 1; //wybieramy zero
                 _markedZerosCount++;
 
                 for (var j = 0; j < _kn; j++)
@@ -97,35 +129,6 @@ namespace hungarianAlgorithm
                     if (_distances[j, zeroIndex] == 0 && _markedZeros[j, zeroIndex] == 0)
                     {
                         _markedZeros[j, zeroIndex] = -1; //wykreślamy zera w danej kolumnie
-                    }
-                }
-            }
-
-            for (var i = 0; i < _kn; i++) //kolumny
-            {
-                zerosCounter = 0;
-                zeroIndex = 0;
-
-                for (var j = 0; j < _kn; j++)
-                {
-                    if (_distances[j, i] != 0 || _markedZeros[j, i] != 0)
-                        continue;
-
-                    zerosCounter++;
-                    zeroIndex = j;
-                }
-
-                if (zerosCounter != 1)
-                    continue;
-
-                _markedZeros[zeroIndex, i] = 1; //wybieramy zero
-                _markedZerosCount++;
-
-                for (var j = 0; j < _kn; j++)
-                {
-                    if (_distances[zeroIndex, j] == 0 && _markedZeros[zeroIndex, j] == 0)
-                    {
-                        _markedZeros[zeroIndex, j] = -1; //wykreślamy zera w danym wierszu
                     }
                 }
             }
