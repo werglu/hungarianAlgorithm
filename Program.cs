@@ -124,7 +124,7 @@ namespace hungarianAlgorithm
                         foreach (var assigment in solution)
                         {
                             writer.WriteLine($"{assigment.HouseId + 1} -> {assigment.WellId + 1}");
-                            cost += algorithm.GetDistance(algorithm.Houses[assigment.HouseId], algorithm.Wells[assigment.WellId]);
+                            cost += Algorithm.GetDistance(algorithm.Houses[assigment.HouseId], algorithm.Wells[assigment.WellId]);
                         }
                         writer.WriteLine(cost);
                     }
