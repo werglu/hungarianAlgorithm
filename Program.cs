@@ -8,10 +8,42 @@ namespace hungarianAlgorithm
         public static void Main(string[] args)
         {
             var algorithm = new Algorithm(1, 1);
+            Random rnd = new Random();
 
             if (args.Length == 0)
             {
                 Console.Error.WriteLine("Należy podać plik wejściowy");
+                Environment.Exit(1);
+            }
+            if (args.Length > 1) //-k 2 -n 3 -o wygenerowany.txt
+            {
+                var file = args[5];
+                if (!file.Contains(".txt"))
+                {
+                    file += ".txt";
+                }
+                if (File.Exists(@"..//..//In//" + file))
+                {
+                    File.Delete(@"..//..//In//" + file);
+                }
+                using (var writer = new StreamWriter(@"..//..//In//" + file))
+                {
+                    writer.WriteLine($"{args[1]} {args[3]}");
+                    for (int i=0; i<int.Parse(args[3]); i++)
+                    {
+                        var x = rnd.Next(0, 1000);
+                        var y = rnd.Next(0, 1000);
+                        writer.WriteLine($"{i+1} {x/10} {y/10}");
+                    }
+                    for (int i = 0; i < int.Parse(args[3])*int.Parse(args[1]); i++)
+                    {
+                        var x = rnd.Next(0, 1000);
+                        var y = rnd.Next(0, 1000);
+                        writer.WriteLine($"{i + 1} {x / 10} {y / 10}");
+                    }
+                }
+
+                Console.WriteLine("Plik został wygenerowany");
                 Environment.Exit(1);
             }
 
@@ -29,7 +61,7 @@ namespace hungarianAlgorithm
 
             try
             {
-                using (var reader = new StreamReader(inFile))
+                using (var reader = new StreamReader(@"..//..//In//" + inFile))
                 {
                     var lineNumber = 1;
                     while (!reader.EndOfStream)
@@ -81,11 +113,25 @@ namespace hungarianAlgorithm
 
                     var solution = algorithm.Solve();
 
-                    Console.WriteLine("ROZWIĄZANIE (dom -> studnia)");
-                    foreach (var assigment in solution)
+
+                    if (File.Exists(@"..//..//Out//" + inFile))
                     {
-                        Console.WriteLine($"{assigment.HouseId+1} -> {assigment.WellId+1}");
+                        File.Delete(@"..//..//Out//" + inFile);
                     }
+                    using (var writer = new StreamWriter(@"..//..//Out//" + inFile))
+                    {
+                        writer.WriteLine("ROZWIĄZANIE (dom -> studnia)");
+
+                        var cost = 0.0;
+                        foreach (var assigment in solution)
+                        {
+                            writer.WriteLine($"{assigment.HouseId + 1} -> {assigment.WellId + 1}");
+                            cost += algorithm.GetDistance(algorithm.Houses[assigment.HouseId], algorithm.Wells[assigment.WellId]);
+                        }
+                        writer.WriteLine(cost);
+                    }
+
+                    Console.ReadKey();
                 }
             }
             catch (FileNotFoundException)
