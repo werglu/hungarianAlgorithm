@@ -45,11 +45,9 @@ namespace hungarianAlgorithm
             {
                 MarkColumnsAndRows();
                 ReduceCost();
-                //DisplayMatrix();
                 MarkZeros();
             }
 
-            //DisplayMatrix();
             return FindSolution();
         }
 

@@ -8,35 +8,33 @@ namespace hungarianAlgorithm
         public static void Main(string[] args)
         {
             var algorithm = new Algorithm(1, 1);
-            Random rnd = new Random();
 
             if (args.Length == 0)
             {
                 Console.Error.WriteLine("Należy podać plik wejściowy");
                 Environment.Exit(1);
             }
-            if (args.Length > 1) //-k 2 -n 3 -o wygenerowany.txt
+            if (args.Length == 6) //-k 2 -n 3 -o wygenerowany.txt
             {
                 var file = args[5];
-                if (!file.Contains(".txt"))
+                if (!file.EndsWith(".txt"))
                 {
                     file += ".txt";
                 }
-                if (File.Exists(@"..//..//In//" + file))
-                {
-                    File.Delete(@"..//..//In//" + file);
-                }
+
                 using (var writer = new StreamWriter(@"..//..//In//" + file))
                 {
                     writer.WriteLine($"{args[1]} {args[3]}");
                     for (int i=0; i<int.Parse(args[3]); i++)
                     {
+                        Random rnd = new Random();
                         var x = rnd.Next(0, 1000);
                         var y = rnd.Next(0, 1000);
                         writer.WriteLine($"{i+1} {x/10} {y/10}");
                     }
                     for (int i = 0; i < int.Parse(args[3])*int.Parse(args[1]); i++)
                     {
+                        Random rnd = new Random();
                         var x = rnd.Next(0, 1000);
                         var y = rnd.Next(0, 1000);
                         writer.WriteLine($"{i + 1} {x / 10} {y / 10}");
@@ -44,7 +42,7 @@ namespace hungarianAlgorithm
                 }
 
                 Console.WriteLine("Plik został wygenerowany");
-                Environment.Exit(1);
+                Environment.Exit(0);
             }
 
             var inFile = args[0];
