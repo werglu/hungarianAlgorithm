@@ -45,11 +45,9 @@ namespace hungarianAlgorithm
             {
                 MarkColumnsAndRows();
                 ReduceCost();
-                DisplayMatrix();
                 MarkZeros();
             }
 
-            DisplayMatrix();
             return FindSolution();
         }
 
@@ -326,7 +324,7 @@ namespace hungarianAlgorithm
             return result;
         }
 
-        private static double GetDistance(Point p1, Point p2)
+        public static double GetDistance(Point p1, Point p2)
         {
             return Math.Round(Math.Sqrt((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y)), 2);
         }
