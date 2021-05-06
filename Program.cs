@@ -39,6 +39,7 @@ namespace hungarianAlgorithm
                     if (options.Verbose)
                         algorithm.SetVerbose();
                     var solution = algorithm.Solve();
+                    Console.WriteLine("Wyniki zostały zapisane do pliku");
 
                     using (var writer = new StreamWriter($"{outputDir}/{options.FileName}"))
                     {
