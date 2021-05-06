@@ -1,11 +1,11 @@
 namespace hungarianAlgorithm
 {
-    public class Assigment
+    public class Assignment
     {
         public readonly int WellId;
         public readonly int HouseId;
 
-        public Assigment(int wellId, int houseId)
+        public Assignment(int wellId, int houseId)
         {
             WellId = wellId;
             HouseId = houseId;
