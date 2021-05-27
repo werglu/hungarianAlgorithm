@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
+
+
 
 namespace hungarianAlgorithm
 {
@@ -9,6 +12,8 @@ namespace hungarianAlgorithm
     {
         public static void Main(string[] args)
         {
+           // Stopwatch sw = new Stopwatch();
+
             var inputDir = Util.GetEnv("INPUT_DIR", "../../In");
             var outputDir = Util.GetEnv("OUTPUT_DIR", "../../Out");
 
@@ -38,8 +43,11 @@ namespace hungarianAlgorithm
                     var algorithm = Util.ParseProblem(reader);
                     if (options.Verbose)
                         algorithm.SetVerbose();
+                    //sw.Start();
                     var solution = algorithm.Solve();
+                    //sw.Stop();
                     Console.WriteLine("Wyniki zostały zapisane do pliku");
+                   // Console.WriteLine("Elapsed={0}", sw.Elapsed);
 
                     using (var writer = new StreamWriter($"{outputDir}/{options.FileName}"))
                     {
